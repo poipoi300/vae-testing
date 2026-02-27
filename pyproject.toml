@@ -1,0 +1,72 @@
+[project]
+name = "folded-vit-ts"
+version = "0.1.0"
+description = "Time-series forecasting using Folded Gramian Angular Fields and Cross-Channel ViT"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0.0",
+    "pandas>=2.2.0",
+    "scikit-learn>=1.5.0",
+    "matplotlib>=3.9.0",
+    "tqdm>=4.67.1",
+    "ipykernel",
+    "fastai>=2.2.1",
+    "polars[pyarrow]",
+    "scipy",
+    "scikit-learn",
+    "psutil",
+    "torch",
+    "torchvision",
+    "transformers>=5.1.0",
+    "datasets>=4.5.0",
+    "diffusers>=0.36.0",
+    "accelerate>=1.12.0",
+    "pillow>=12.1.1",
+    "requests>=2.32.5",
+    "einops>=0.8.2",
+]
+
+# This prevents Hatchling from looking for a package folder
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ipykernel>=6.29.0",
+    "ruff>=0.5.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+select = ["E", "F", "I"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true  # Crucial: Prevents uv from searching this index for other packages (like numpy)
+
+# 2. Map Specific Packages to that Index
+[tool.uv.sources]
+torch = [
+    # Use GPU index on Linux/Windows
+    { index = "pytorch-gpu", marker = "sys_platform != 'darwin'" },
+    # Use default PyPI (CPU/MPS) on Mac
+    { index = "pypi", marker = "sys_platform == 'darwin'" }
+]
+torchvision = [{ index = "pytorch-gpu" }]
+torchaudio = [{ index = "pytorch-gpu" }]
+
+[tool.pdm]
+distribution = false
